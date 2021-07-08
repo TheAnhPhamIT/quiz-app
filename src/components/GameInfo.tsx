@@ -1,5 +1,6 @@
 import React from "react";
 import styled from "styled-components";
+import CountDown from '../components/CountDown';
 
 type GameInfoProps = {
     score: number;
@@ -17,11 +18,15 @@ const GameInfoContainer = styled.div`
         }
     `;
 
-function GameInfo(props:GameInfoProps) {
+function GameInfo({score, currQuiz, totalQuiz}:GameInfoProps) {
+    const handleCountDownFinished = () => {
+        // do something
+    }
     return (
         <GameInfoContainer>
-            <div className="score">Score: {props.score}</div>
-            <div className="quizzes">Quizzes: {props.currQuiz}/{props.totalQuiz}</div>
+            <div className="time-left">Time left: <CountDown from={50} to={0} onTimeout={handleCountDownFinished}/></div>
+            <div className="score">Score: {score}</div>
+            <div className="quizzes">Quizzes: {currQuiz}/{totalQuiz}</div>
         </GameInfoContainer>
     )
 }

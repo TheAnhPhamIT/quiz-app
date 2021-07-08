@@ -1,4 +1,4 @@
-import { Quiz, QuizDifficulty, QuizShuffleAnswers } from '../models/quiz.model'
+import { Quiz, QuizDifficulty, QuizPackage, QuizShuffleAnswers } from '../models/quiz.model'
 import { shuffleArray } from '../utils';
 
 class QuizService {
@@ -7,7 +7,7 @@ class QuizService {
         this.baseUrl = 'https://opentdb.com/api.php';
     }
 
-    async getQuizzes(amount:number = 10, difficulty: QuizDifficulty = QuizDifficulty.EASY):Promise<QuizShuffleAnswers[]> {
+    async getQuizzes(amount:QuizPackage, difficulty: QuizDifficulty):Promise<QuizShuffleAnswers[]> {
         const endpoint = `${this.baseUrl}?amount=${amount}&difficulty=${difficulty}&type=multiple`;
         const resData = await (await fetch(endpoint)).json();
         const results: Quiz[] = resData.results as Quiz[]

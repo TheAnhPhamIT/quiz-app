@@ -5,7 +5,8 @@ import AnswerCard from './components/AnswerCard';
 import GameInfo from './components/GameInfo';
 import Loading from './components/Loading';
 import GameResult from './components/GameResult';
-import {QuizDifficulty, QuizShuffleAnswers} from './models/quiz.model'
+import SetupGame from './components/SetupGame';
+import {QuizDifficulty, QuizShuffleAnswers, getAllQuizDifficulty, getAllQuizPackages, QuizPackage} from './models/quiz.model';
 import { useState } from 'react';
 import styled from 'styled-components';
 import { CSSProperties } from 'react';
@@ -32,6 +33,7 @@ const ResetBtn = styled.button`
   border: 0;
   cursor: pointer;
   transition: transform 0.4s ease;
+  width: 200px;
 
   &:active {
     transform: scale(0.98);
@@ -57,6 +59,9 @@ const AppContainer = styled.div`
   }
 `;
 
+const difficulties = getAllQuizDifficulty();
+const packages = getAllQuizPackages();
+
 function App() {
   const [quizzes, setQuizzes] = useState<QuizShuffleAnswers[]>([]);
   const [quizIdx, setQuizIdx] = useState<number>(0);
@@ -65,10 +70,31 @@ function App() {
   const [showStateAnswer, setShowStateAnswer] = useState<boolean>(false);
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [playingGame, setPlayingGame] = useState<boolean>(false);
+  const [level, setLevel] = useState<QuizDifficulty>(QuizDifficulty.EASY);
+  const [quizPackage, setQuizPackage] = useState<QuizPackage>(QuizPackage.PACKAGE_10);
+  const [isSetting, setIsSetting] = useState<boolean>(false);
 
-  const startGame = async () => {
+  const setupGame = () => {
+    setIsSetting(true);
+  }
+
+  const handleSetup = () => {
+    setIsSetting(false);
+    startGame(quizPackage, level)
+  }
+
+  const onChangeLevel = (level: QuizDifficulty) => {
+    setLevel(level);
+  }
+
+  const onChangePackage = (quizPackage: QuizPackage) => {
+    setQuizPackage(quizPackage)
+  }
+
+  const startGame = async ( quizPackage: QuizPackage = QuizPackage.PACKAGE_10, 
+                            difficulty: QuizDifficulty = QuizDifficulty.EASY) => {
     setIsLoading(true);
-    const quizzes: QuizShuffleAnswers[] = await QuizService.getQuizzes(10, QuizDifficulty.EASY);
+    const quizzes: QuizShuffleAnswers[] = await QuizService.getQuizzes(quizPackage, difficulty);
     console.log(quizzes);
     setFinishedGame(false);
     setQuizzes(quizzes);
@@ -125,11 +151,20 @@ function App() {
     <AppContainer>
       <h1>Quiz app</h1>
       {
-        finishedGame && !isLoading ? <GameResult score={score} totalQuizzes={quizzes.length}/> : null
+        isSetting ? (
+          <SetupGame levels={difficulties} 
+                      quizPackages={packages}
+                      onChangePackage={onChangePackage}
+                      onChangeLevel={onChangeLevel}
+                      onConfirmClick={handleSetup}/>
+        ) : null
       }
       {
-        (!isLoading && !playingGame) ? (
-          <ResetBtn onClick={startGame}>
+        finishedGame && !isLoading  && !isSetting ? <GameResult score={score} totalQuizzes={quizzes.length}/> : null
+      }
+      {
+        (!isLoading && !playingGame && !isSetting) ? (
+          <ResetBtn onClick={setupGame}>
             {finishedGame ? 'Play again' : 'Start Game'}       
           </ResetBtn>
         ) : null
@@ -151,11 +186,6 @@ function App() {
                 )
               }
             </div>
-            {/* <button className="btn next-quiz-btn"
-                    onClick={nextQuiz}
-                    style={nextBtnStyle}>
-              Next Quiz
-            </button> */}
             <NextBtn onClick={nextQuiz}>
               Next Quiz
             </NextBtn>

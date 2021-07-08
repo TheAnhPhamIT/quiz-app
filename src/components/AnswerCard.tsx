@@ -28,9 +28,15 @@ function AnswerCard(props: AnswerProps) {
         props.onAnswerClick(props.answer);
     }
 
+    const createMarkup = (htmlString: string) => {
+        return {
+            __html: htmlString
+        }
+    }
+
     return (
         <AnswerCardContainer showState={props.showState} correct={props.correct} onClick={handleClick}>
-            {props.answer}
+            <div dangerouslySetInnerHTML={createMarkup(props.answer)}></div>
         </AnswerCardContainer>
     )
 }
