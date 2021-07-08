@@ -7,6 +7,7 @@ import Loading from './components/Loading';
 import GameResult from './components/GameResult';
 import SetupGame from './components/SetupGame';
 import {QuizDifficulty, QuizShuffleAnswers, getAllQuizDifficulty, getAllQuizPackages, QuizPackage} from './models/quiz.model';
+import { GameTime, getAllGameTime } from './models/game.model';
 import { useState } from 'react';
 import styled from 'styled-components';
 import { CSSProperties } from 'react';
@@ -61,6 +62,7 @@ const AppContainer = styled.div`
 
 const difficulties = getAllQuizDifficulty();
 const packages = getAllQuizPackages();
+const gameTimes = getAllGameTime();
 
 function App() {
   const [quizzes, setQuizzes] = useState<QuizShuffleAnswers[]>([]);
@@ -72,6 +74,7 @@ function App() {
   const [playingGame, setPlayingGame] = useState<boolean>(false);
   const [level, setLevel] = useState<QuizDifficulty>(QuizDifficulty.EASY);
   const [quizPackage, setQuizPackage] = useState<QuizPackage>(QuizPackage.PACKAGE_10);
+  const [time, setTime] = useState<GameTime>(GameTime.MINUTE1);
   const [isSetting, setIsSetting] = useState<boolean>(false);
 
   const setupGame = () => {
@@ -89,6 +92,14 @@ function App() {
 
   const onChangePackage = (quizPackage: QuizPackage) => {
     setQuizPackage(quizPackage)
+  }
+
+  const onChangeGameTime = (time: GameTime) => {
+    setTime(time)
+  }
+
+  const handleTimeout = () => {
+    endGame()
   }
 
   const startGame = async ( quizPackage: QuizPackage = QuizPackage.PACKAGE_10, 
@@ -154,8 +165,10 @@ function App() {
         isSetting ? (
           <SetupGame levels={difficulties} 
                       quizPackages={packages}
+                      gameTimes={gameTimes}
                       onChangePackage={onChangePackage}
                       onChangeLevel={onChangeLevel}
+                      onChangeGameTime={onChangeGameTime}
                       onConfirmClick={handleSetup}/>
         ) : null
       }
@@ -173,7 +186,11 @@ function App() {
       {
         (!finishedGame && quizzes.length > 0) ? (
           <div className="quiz-container" style={quizContainerStyle}>
-            <GameInfo score={score} currQuiz={quizIdx+1} totalQuiz={quizzes.length}/>
+            <GameInfo score={score} 
+                      currQuiz={quizIdx+1} 
+                      totalQuiz={quizzes.length} 
+                      timeForGame={time} 
+                      handleCountDownFinished={handleTimeout}/>
             <QuestionCard question={quizzes[quizIdx].question} />
             <div className="answer-container" style={answersContainerStyle}>
               {

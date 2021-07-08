@@ -1,5 +1,6 @@
 import React from "react";
 import styled from "styled-components";
+import { GameTime } from "../models/game.model";
 import { QuizDifficulty, QuizPackage } from "../models/quiz.model";
 
 interface ILevel {
@@ -12,12 +13,19 @@ interface IQuizPackage {
     text: string
 }
 
+interface IGameTime {
+    code: GameTime;
+    text: string;
+}
+
 type SetupGameProps = {
     levels: ILevel[];
     quizPackages: IQuizPackage[];
+    gameTimes: IGameTime[];
     onConfirmClick: () => void;
     onChangeLevel: (level: QuizDifficulty) => void;
     onChangePackage: (quizPackage: QuizPackage) => void;
+    onChangeGameTime: (gameTime: GameTime) => void;
 }
 
 const SetupGameContainer = styled.div`
@@ -87,6 +95,11 @@ function SetupGame(props: SetupGameProps) {
         props.onChangePackage(packageSelected)
     }
 
+    const onChangeGameTime = (e: React.ChangeEvent<HTMLSelectElement>) => {
+        const timeSelected = +e.currentTarget.value as GameTime;
+        props.onChangeGameTime(timeSelected)
+    }
+
     return (
         <SetupGameContainer>
             <h3>Setting Game Before You Play</h3>
@@ -109,6 +122,18 @@ function SetupGame(props: SetupGameProps) {
                         props.quizPackages.map(packageItem => 
                             <option key={packageItem.code} value={packageItem.code}>
                                 {packageItem.text}
+                            </option>
+                        )
+                    }
+                </select>
+            </div>
+            <div className="select-package input-wrap">
+                <label htmlFor="time">Select time: </label>
+                <select className="time" onChange={onChangeGameTime}>
+                    {
+                        props.gameTimes.map(time => 
+                            <option key={time.code} value={time.code}>
+                                {time.text}
                             </option>
                         )
                     }

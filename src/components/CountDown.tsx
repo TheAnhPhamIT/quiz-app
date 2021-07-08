@@ -15,26 +15,30 @@ const CountDownContainer = styled.span`
         if(props.serious) return '#e74c3c';
         return '#1abc9c';
     }};
+
+    & > .time-unit {
+        color: #222;
+    }
 `;
 
 function CountDown(props: CountDownProps) {
     const [timeLeft, setTimeLeft] = useState<number>(props.from);
 
     useEffect(() => {
-        console.log('here')
-        const interval = setInterval(() => {
-            if(timeLeft <= props.to) {
-                clearInterval(interval);
-                console.log(interval)
-            }
-            setTimeLeft(t => t - 1);
-        }, 1000);
-    }, [])
+        if(timeLeft > props.to) {
+            const timeout = setInterval(() => {
+                setTimeLeft(t => t - 1);
+            }, 1000);
+            return () => clearInterval(timeout)  
+        } else {
+            props.onTimeout()
+        }
+    }, [timeLeft, props.from, props.to, props])
 
     return (
         <CountDownContainer warning={timeLeft < 30 && timeLeft >= 10}
                             serious={timeLeft < 10}>
-            {timeLeft}
+            {timeLeft}<small className="time-unit">s</small>
         </CountDownContainer>
     )
 
