@@ -21,19 +21,17 @@ const CountDownContainer = styled.span`
     }
 `;
 
-function CountDown(props: CountDownProps) {
-    const [timeLeft, setTimeLeft] = useState<number>(props.from);
+function CountDown({from, to, onTimeout}: CountDownProps) {
+    const [timeLeft, setTimeLeft] = useState<number>(from);
 
     useEffect(() => {
-        if(timeLeft > props.to) {
-            const timeout = setInterval(() => {
-                setTimeLeft(t => t - 1);
-            }, 1000);
-            return () => clearInterval(timeout)  
+        if(timeLeft > to) {
+            const timeout = setTimeout(() => setTimeLeft(timeLeft - 1), 1000);
+            return () => clearTimeout(timeout);
         } else {
-            props.onTimeout()
+            onTimeout();
         }
-    }, [timeLeft, props.from, props.to, props])
+    }, [timeLeft])
 
     return (
         <CountDownContainer warning={timeLeft < 30 && timeLeft >= 10}
